@@ -3,21 +3,31 @@ package com.github.dbgso.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.github.dbgso.config.GitConfig;
+import com.github.dbgso.model.Commit;
 
 @Service
 public class GitManagementService {
 
 	private Git git;
+	@Autowired
+	GitConfig config;
 
 	public void init(String path) throws IOException {
 		git = Git.open(new File(path));
@@ -43,6 +53,30 @@ public class GitManagementService {
 		List<RevCommit> list = new ArrayList<>();
 		call.forEach(c -> list.add(c));
 		return list;
+	}
+
+	public List<Commit> getCommits(String name) throws NoHeadException, GitAPIException, IOException {
+		initFromRepositoryName(name);
+		List<Commit> commits = new ArrayList<>();
+		RevCommit HEAD = git.log().call().iterator().next();
+		git.log().call().forEach(c -> {
+			commits.add(Commit.valueOf(c));
+		});
+		Collections.sort(commits, (b, a) -> {
+			return a.getDate().compareTo(b.getDate());
+		});
+		return commits;
+	}
+
+	public List<String> getBranches(String repoName) throws IOException, GitAPIException {
+		initFromRepositoryName(repoName);
+		List<Ref> call = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
+		return call.stream().map(b -> b.getName()).collect(Collectors.toList());
+	}
+
+	private void initFromRepositoryName(String name) throws IOException {
+		File path = new File(new File(config.getRepositoryPath()), name);
+		init(path.getAbsolutePath());
 	}
 
 }

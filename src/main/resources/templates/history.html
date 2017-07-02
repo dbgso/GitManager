@@ -4,9 +4,28 @@
 <head>
 <meta charset="UTF-8" />
 <title>Insert title here</title>
+<link rel="stylesheet" href="/third-party/vis.js/vis.min.css" th:href="@{/third-party/vis.js/vis.min.css}" type="text/css" media="screen" />
+<style type="text/css">
+#gitGraph {
+width: 500px;
+height: 5000px;
+}
+</style>
 </head>
 <body>
-	<table border="2">
+    
+    <table>
+        <tr>
+            <td><div id="gitGraph" ></div></td>
+            <td><div id="configure"></div></td>
+        </tr>
+    </table>
+    
+    <select id="branches" name="${branches}">
+        <option th:each="branch : ${branches}" th:value="${branch}" th:text="${branch}"></option>
+    </select>
+
+<!-- 	<table border="2">
 		<thead>
 			<tr>
 				<th>メッセージ</th>
@@ -17,11 +36,16 @@
                 <td th:text="${log.getFullMessage()}"></td>
                 <td th:text="${log.getAuthorIdent().getName()}"></td>
                 <td th:text="${log.getAuthorIdent().getEmailAddress()}"></td>
-                <!-- <td th:text="${#dates.format(log.getCommitTime()), 'yyyy/MM/dd hh:mm:ss')}"></td> -->
+                <td th:text="${#dates.format(log.getCommitTime()), 'yyyy/MM/dd hh:mm:ss')}"></td>
                 <td th:text="${log.getParentCount()}"></td>
+                <td><input type="hidden" th:value="${log}"/></td>
             </tr>
 		</tbody>
 	</table>
-
+ -->
+    <!-- <script type="text/javascript" src="/third-party/gitgraph.js/gitgraph.js" th:src="@{/third-party/gitgraph.js/gitgraph.js}"></script> -->
+    <script type="text/javascript" src="/third-party/vis.js/vis.min.js" th:src="@{/third-party/vis.js/vis.min.js}"></script>
+    <script type="text/javascript" src="/third-party/jquery/jquery-3.2.1.min.js" th:src="@{/third-party/jquery/jquery-3.2.1.min.js}"></script>
+	<script type="text/javascript" th:inline="javascript" src="/history.js" th:src="@{/history.js}"></script>
 </body>
 </html>

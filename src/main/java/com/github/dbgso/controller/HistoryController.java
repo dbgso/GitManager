@@ -2,7 +2,6 @@ package com.github.dbgso.controller;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoHeadException;
@@ -30,11 +29,8 @@ public class HistoryController {
 			throws IOException, NoHeadException, GitAPIException {
 		service.init("/tmp/git/test/" + repoName);
 		List<RevCommit> log = service.Log();
-		List<String> messages = log.stream()//
-				.map(commit -> commit.getFullMessage())//
-				.collect(Collectors.toList());
-		model.addAttribute("messages", messages);
 		model.addAttribute("raw", log);
+		model.addAttribute("branches", service.getBranches(repoName));
 		return "history";
 	}
 }
