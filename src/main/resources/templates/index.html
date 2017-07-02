@@ -1,14 +1,32 @@
 <!DOCTYPE html>
-<html xmlns="‌http://www.w3.org/1999/xhtml" xmlns:th="‌http://www.thymeleaf.org">
-    <head>
-        <meta charset="UTF-8" />
-        <title>Main Page</title>
-    </head>
-    <body>
-        <form th:action="clone" th:method="POST">
-            <label for="">URL</label>
-            <input type="text" name="url" />
-            <button type="submit">clone</button>
-        </form>
-    </body>
+<html xmlns="‌http://www.w3.org/1999/xhtml"
+	xmlns:th="‌http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>Main Page</title>
+</head>
+<body>
+	<form th:action="clone" th:method="POST" th:object="${project}">
+		<p>
+			<label for="">URL</label> <input type="text" th:field="*{url}" />
+		</p>
+		<p>
+			<label for="">name</label> <input type="text" th:field="*{name}" />
+		</p>
+		<button type="submit">clone</button>
+	</form>
+
+	<table>
+		<thead>
+			<tr>
+				<td>名前</td>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="proj : ${projects}">
+				<td><a th:href="'history/'+${proj.name}" th:text="${proj.name}"></a></td>
+			</tr>
+		</tbody>
+	</table>
+</body>
 </html>

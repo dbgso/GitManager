@@ -12,6 +12,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.github.dbgso.service.GitManagementService;
@@ -24,9 +25,10 @@ public class HistoryController {
 	@Autowired
 	GitManagementService service;
 
-	@GetMapping
-	public String history(Model model) throws IOException, NoHeadException, GitAPIException {
-		service.init("/tmp/git/test");
+	@GetMapping(value = "/{repository}")
+	public String history(@PathVariable(name = "repository") String repoName, Model model)
+			throws IOException, NoHeadException, GitAPIException {
+		service.init("/tmp/git/test/" + repoName);
 		List<RevCommit> log = service.Log();
 		List<String> messages = log.stream()//
 				.map(commit -> commit.getFullMessage())//
