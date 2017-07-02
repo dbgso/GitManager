@@ -1,3 +1,17 @@
 spring:
   thymeleaf:
     cache: false
+  h2:
+    console:
+      enabled: true
+  datasource:
+    url: jdbc:h2:file:./git-manage;
+    username: sa
+    password: null
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+  data:
+    rest:
+      base-path: api
