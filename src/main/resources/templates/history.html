@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns="‌http://www.w3.org/1999/xhtml"
+	xmlns:th="‌http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>Insert title here</title>
+</head>
+<body>
+	<table border="2">
+		<thead>
+			<tr>
+				<th>メッセージ</th>
+			</tr>
+		</thead>
+		<tbody>
+            <tr th:each="log : ${raw}">
+                <td th:text="${log.getFullMessage()}"></td>
+                <td th:text="${log.getAuthorIdent().getName()}"></td>
+                <td th:text="${log.getAuthorIdent().getEmailAddress()}"></td>
+                <!-- <td th:text="${#dates.format(log.getCommitTime()), 'yyyy/MM/dd hh:mm:ss')}"></td> -->
+                <td th:text="${log.getParentCount()}"></td>
+            </tr>
+		</tbody>
+	</table>
+
+</body>
+</html>
