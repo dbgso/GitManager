@@ -1,6 +1,7 @@
 package com.github.dbgso.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,8 +31,9 @@ public class GitManagementServiceTest {
 
 	@Test
 	public void logの確認() throws IOException, NoHeadException, GitAPIException {
-		service.init(TMP_GIT_TEST_REPOSITORY);
-		List<RevCommit> log = service.Log();
-		assertEquals(42, log.size());
+		// service.init(TMP_GIT_TEST_REPOSITORY);
+		// List<RevCommit> log = service.Log();
+		// assertEquals(42, log.size());
+		fail();
 	}
 }

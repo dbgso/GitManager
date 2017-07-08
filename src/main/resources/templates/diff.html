@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns="‌http://www.w3.org/1999/xhtml"
+      xmlns:th="‌http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Main Page</title>
+        <link type="text/css" rel="stylesheet" href="/third-party/Mergely/codemirror.css" th:href="@{/third-party/Mergely/codemirror.css}" />
+        <link type="text/css" rel="stylesheet" href="/third-party/Mergely/mergely.css" th:href="@{/third-party/Mergely/mergely.css}" />
+    </head>
+    <body>
+        <div id="compare" style:width="100%">
+        </div>
+
+        <script type="text/javascript" src="/third-party/jquery/jquery-3.2.1.min.js" th:src="@{/third-party/jquery/jquery-3.2.1.min.js}"></script>
+
+        <script type="text/javascript" src="/third-party/Mergely/codemirror.min.js" th:src="@{/third-party/Mergely/codemirror.min.js}"></script>
+
+        <script type="text/javascript" src="/third-party/Mergely/mergely.min.js" th:src="@{/third-party/Mergely/mergely.min.js}"></script>
+
+        <script type="text/javascript">
+            const param = document.location.search;
+            const pathes = document.location.pathname.split('/');
+            const repository = pathes[2];
+            const sha1 = pathes[3];
+
+            const p = repository + "/" + sha1;
+            $.ajax({
+            method:'get',
+            url: 'http://localhost:8080/api2/' + p + param,
+            }).then(function(data){
+            $(document).ready(function () {
+            $('#compare').mergely({
+            cmsettings: {
+            readOnly: true,
+            lineNumbers: true,
+
+            },
+            lhs: function(setValue) {
+            setValue(data[1]);
+            },
+            rhs: function(setValue) {
+            setValue(data[0]);
+            },
+            editor_height: '500px',
+            editor_width: '48%',
+            ignorews: true
+
+
+            });
+            });
+            });
+
+        </script>
+    </body>
+</html>

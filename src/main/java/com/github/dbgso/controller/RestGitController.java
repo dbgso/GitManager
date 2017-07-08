@@ -26,18 +26,32 @@ public class RestGitController {
 	@Autowired
 	GitManagementService service;
 
-	@GetMapping(value = "/{branch}/message")
-	public List<Commit> search(@PathVariable(name = "branch") String branch,
-			@RequestParam(required = true, name = "message") String message) throws NoHeadException, GitAPIException, IOException {
-		service.initFromRepositoryName(branch);
-		return service.searchByMessage(message);
+	@GetMapping(value = "/{repositoryName}/message")
+	public List<Commit> search(@PathVariable(name = "repositoryName") String repositoryName,
+			@RequestParam(required = true, name = "message") String message)
+			throws NoHeadException, GitAPIException, IOException {
+		service.initFromRepositoryName(repositoryName);
+		return service.searchByMessage(repositoryName, message);
 	}
 
 	@ExceptionHandler(value = { NoHeadException.class })
 	@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
 	@ResponseBody
-	public String hoge() {
+	public String internalErrorHandling() {
 		return "nohead";
+	}
+
+	@GetMapping("/{repoName}/{hash}")
+	public List<String> aiueo(@PathVariable("repoName") String name, @PathVariable("hash") String hash,
+			@RequestParam("path") String path) throws IOException {
+		return service.getTextPair(name, hash, path);
+	}
+
+	@ExceptionHandler(value = { IllegalArgumentException.class })
+	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
+	@ResponseBody
+	public String badrequest(IllegalArgumentException e) {
+		return e.getMessage();
 	}
 
 }

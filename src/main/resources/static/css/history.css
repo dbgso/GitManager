@@ -1,0 +1,15 @@
+.mergecommit{
+    background-color: #DDD;
+}
+
+.DELETE{
+    color: red;
+}
+
+.MODIFY{
+    color: green;
+}
+
+.ADD{
+    color: blue;
+}

@@ -1,5 +1,7 @@
 package com.github.dbgso.controller;
 
+import java.io.IOException;
+
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
@@ -38,7 +40,7 @@ public class MainController {
 
 	@RequestMapping(value = "clone", method = RequestMethod.POST)
 	public String clone(@Validated @ModelAttribute GitProject project, Model model, BindingResult result)
-			throws InvalidRemoteException, TransportException, GitAPIException {
+			throws InvalidRemoteException, TransportException, GitAPIException, IOException {
 		if (result.hasErrors()) {
 			return index(model, project);
 		}
