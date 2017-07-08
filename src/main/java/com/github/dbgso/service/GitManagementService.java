@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
@@ -74,9 +75,15 @@ public class GitManagementService {
 		return call.stream().map(b -> b.getName()).collect(Collectors.toList());
 	}
 
-	private void initFromRepositoryName(String name) throws IOException {
+	public void initFromRepositoryName(String name) throws IOException {
 		File path = new File(new File(config.getRepositoryPath()), name);
 		init(path.getAbsolutePath());
 	}
 
+	public List<Commit> searchByMessage(String message) throws NoHeadException, GitAPIException {
+		return StreamSupport.stream(git.log().call().spliterator(), false)//
+				.filter(c -> c.getShortMessage().contains(message))//
+				.map(c -> Commit.valueOf(c))//
+				.collect(Collectors.toList());
+	}
 }
