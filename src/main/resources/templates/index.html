@@ -25,6 +25,11 @@
             <tbody>
                 <tr th:each="proj : ${projects}">
                     <td><a th:href="'history/' + ${proj.name} + '/'" th:text="${proj.name}"></a></td>
+                    <td >
+                        <form th:action="|./${proj.id}|" th:method="DELETE" >
+                            <button id="delete-button" type="submit">Delete</button>
+                        </form>
+                    </td>
                 </tr>
             </tbody>
         </table>

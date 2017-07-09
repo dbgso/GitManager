@@ -38,7 +38,9 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.revwalk.filter.MaxCountRevFilter;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.util.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -87,7 +89,7 @@ public class GitManagementService {
 	}
 
 	public Git initFromRepositoryName(String name) throws IOException {
-		File path = new File(new File(config.getRepositoryPath()), name);
+		File path = getRepositoryPath(name);
 		return init(path.getAbsolutePath());
 	}
 
@@ -233,6 +235,25 @@ public class GitManagementService {
 		if (objectId == null)
 			throw new IllegalArgumentException();
 		return walk.parseCommit(objectId);
+	}
+
+	/**
+	 * Delete project directory.
+	 * 
+	 * @param projectName
+	 */
+	public boolean delete(String projectName) {
+		File path = getRepositoryPath(projectName);
+		try {
+			FileUtils.delete(path, FileUtils.RECURSIVE);
+			return true;
+		} catch (IOException e) {
+			return false;
+		}
+	}
+
+	private File getRepositoryPath(String projectName) {
+		return new File(new File(config.getRepositoryPath()), projectName);
 	}
 
 }
