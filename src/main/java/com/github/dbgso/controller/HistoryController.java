@@ -44,7 +44,12 @@ public class HistoryController {
 	public String hoge(@PathVariable(name = "repository") String repoName, @PathVariable(name = "hash") String hash,
 			Model model) throws NoHeadException, GitAPIException, IOException {
 		Commit commit = service.getCommit(repoName, hash);
+		List<Commit> parentCommits = new ArrayList<>(commit.getParents().size());
+		for (String parentHash : commit.getParents()) {
+			parentCommits.add(service.getCommit(repoName, parentHash));
+		}
 		model.addAttribute("commit", commit);
+		model.addAttribute("parents", parentCommits);
 		return "commit";
 	}
 

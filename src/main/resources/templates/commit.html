@@ -11,7 +11,7 @@
             <label for="">parent</label>
 
             <ul>
-                <li th:each="parent : *{parents}" ><a th:href="|../${parent}/|" th:text="${parent}"></a></li>
+                <li th:each="parent : ${parents}" ><a th:href="|../${parent.sha1}/|" th:text="${parent.message}"></a></li>
             </ul>
 
             <label th:text="*{sha1}"></label>
