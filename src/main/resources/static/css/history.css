@@ -13,3 +13,11 @@
 .ADD{
     color: blue;
 }
+
+.add-count{
+    color: green;
+}
+
+.delete-count {
+    color: red;
+}

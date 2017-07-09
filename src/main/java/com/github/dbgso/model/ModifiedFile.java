@@ -12,6 +12,8 @@ public class ModifiedFile {
 	private String oldPath;
 	private String newPath;
 	private String patch;
+	private int addCount;
+	private int deleteCount;
 
 	public static ModifiedFile valueOf(DiffEntry diff) {
 		ModifiedFile modifiedFile = new ModifiedFile();

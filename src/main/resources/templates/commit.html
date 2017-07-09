@@ -22,19 +22,28 @@
             </ul>
 
             <hr/>
-            
+
             <p><a id="download-csv" href="./download-csv">csvでダウンロード</a></p>
 
             <label for="">modified files</label>
 
-            <table>
-                <thead></thead>
+            <table border="1">
+                <thead>
+                    <tr class="modified-table">
+                        <th>変更種別</th>
+                        <th>ファイルパス</th>
+                        <th>追加</th>
+                        <th>削除</th>
+                    </tr>
+                </thead>
                 <tbody>
                     <tr th:each="file : *{modifiedFiles}" th:classappend="${file.changeType.toString()}">
                         <td><label for="" th:text="${file.changeType}"></label></td>
-                        <td th:with="a = ${file.getPath()}">
+                        <td class="filepath" th:with="a = ${file.getPath()}">
                             <a th:href="|./diff?path=${a}|" th:text="${a}"></a></td>
-                        <td><label for="" th:text="${file.patch}"></label></td>
+                        <td><label color="green" class="add-count" for="" th:text="${file.addCount}"></label></td>
+                        <td><label color="red" class="delete-count" for="" th:text="${file.deleteCount}"></label></td>
+                        <!-- <td><label class="patch" for="" th:text="${file.patch}"></label></td> -->
                     </tr>
                 </tbody>
             </table>

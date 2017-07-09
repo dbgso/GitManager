@@ -102,56 +102,77 @@ public class GitManagementService {
 
 	public Commit getCommit(String repoName, String hash) throws NoHeadException, GitAPIException, IOException {
 		Git git = initFromRepositoryName(repoName);
-		try (RevWalk walk = new RevWalk(git.getRepository())) {
-			ObjectId objectId = git.getRepository().resolve(hash);
-			if (objectId == null)
-				throw new IllegalArgumentException(String.format("%s is not found", hash));
-			RevCommit revCommit = walk.parseCommit(objectId);
+
+		Repository repository = git.getRepository();
+		try (RevWalk walk = new RevWalk(repository)) {
+			RevCommit revCommit = getRevCommit(walk, repository, hash);
+			RevCommit parentCommit = searchParent(repository, walk, revCommit);
 
 			Commit commit = Commit.valueOf(revCommit);
-			try (DiffFormatter diffFormatter = new DiffFormatter(System.out)) {
-				diffFormatter.setRepository(git.getRepository());
 
-				RevTree toTree = revCommit.getTree();
-				List<String> parents = commit.getParents();
-				String string = parents.get(parents.size() - 1);
-
-				RevTree parentTree = walk.parseCommit(git.getRepository().resolve(string)).getTree();
-
-				List<DiffEntry> diffEntries = diffFormatter.scan(parentTree, toTree);
-
-				List<ModifiedFile> modifiedFiles = diffEntries.stream()//
-						.map(diff -> {
-							ModifiedFile file = ModifiedFile.valueOf(diff);
-							if (diff.getChangeType() == ChangeType.DELETE || diff.getChangeType() == ChangeType.ADD)
-								return file;
-							try {
-								Repository repository = git.getRepository();
-								RawText old = readText(diff.getOldId(), repository.newObjectReader());
-								RawText newText = readText(diff.getNewId(), repository.newObjectReader());
-								DiffAlgorithm algorithm = DiffAlgorithm.getAlgorithm(repository.getConfig().getEnum(//
-										ConfigConstants.CONFIG_DIFF_SECTION, //
-										null, //
-										ConfigConstants.CONFIG_KEY_ALGORITHM, //
-										SupportedAlgorithm.HISTOGRAM));
-								EditList editList = algorithm.diff(RawTextComparator.DEFAULT, old, newText);
-								StringBuilder sb = new StringBuilder();
-								editList.forEach(e -> {
-								});
-								file.setPatch(sb.toString());
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-							return file;
-						})//
-						.collect(Collectors.toList());
-
-				commit.setModifiedFiles(modifiedFiles);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			List<ModifiedFile> modifiedFiles = execDiff(repository, revCommit, parentCommit);
+			commit.setModifiedFiles(modifiedFiles);
 
 			return commit;
+		}
+	}
+
+	private RevCommit searchParent(Repository repository, RevWalk walk, RevCommit commit)
+			throws RevisionSyntaxException, AmbiguousObjectException, IncorrectObjectTypeException, IOException {
+		int parentCount = commit.getParentCount();
+		if (parentCount == 0)
+			return null;
+		RevCommit revParent = commit.getParent(parentCount - 1);
+
+		String sha1 = revParent.getId().name();
+		ObjectId objectId = repository.resolve(sha1);
+		return walk.parseCommit(objectId);
+	}
+
+	private List<ModifiedFile> execDiff(Repository repository, RevCommit revCommit, RevCommit parentCommit)
+			throws IOException {
+		try (DiffFormatter diffFormatter = new DiffFormatter(System.out)) {
+			diffFormatter.setRepository(repository);
+
+			RevTree toTree = revCommit.getTree();
+			RevTree parentTree = parentCommit == null ? null : parentCommit.getTree();
+
+			List<DiffEntry> diffEntries = diffFormatter.scan(parentTree, toTree);
+
+			List<ModifiedFile> modifiedFiles = diffEntries.stream()//
+					.map(diff -> {
+						ModifiedFile file = ModifiedFile.valueOf(diff);
+						ChangeType changeType = diff.getChangeType();
+						if (changeType == ChangeType.RENAME || changeType == ChangeType.COPY)
+							return file;
+						try {
+							RawText old = RawText.EMPTY_TEXT;
+							if (changeType != ChangeType.ADD)
+								old = readText(diff.getOldId(), repository.newObjectReader());
+							RawText newText = RawText.EMPTY_TEXT;
+							if (changeType != ChangeType.DELETE)
+								newText = readText(diff.getNewId(), repository.newObjectReader());
+							DiffAlgorithm algorithm = DiffAlgorithm.getAlgorithm(repository.getConfig().getEnum(//
+									ConfigConstants.CONFIG_DIFF_SECTION, //
+									null, //
+									ConfigConstants.CONFIG_KEY_ALGORITHM, //
+									SupportedAlgorithm.HISTOGRAM));
+							EditList editList = algorithm.diff(RawTextComparator.DEFAULT, old, newText);
+							StringBuilder sb = new StringBuilder();
+							editList.forEach(e -> {
+								file.setAddCount(file.getAddCount() + e.getLengthB());
+								file.setDeleteCount(file.getDeleteCount() + e.getLengthA());
+							});
+							file.setPatch(sb.toString());
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						return file;
+					})//
+					.collect(Collectors.toList());
+			return modifiedFiles;
+		} catch (IOException e) {
+			throw e;
 		}
 	}
 
@@ -173,6 +194,9 @@ public class GitManagementService {
 	private String getFileString(String path, RevCommit revCommit, ObjectReader reader) throws MissingObjectException,
 			IncorrectObjectTypeException, CorruptObjectException, IOException, UnsupportedEncodingException {
 		TreeWalk treeWalk = TreeWalk.forPath(reader, path, revCommit.getTree());
+		// 存在しない場合はから文字列を返す
+		if (treeWalk == null)
+			return "";
 		if (treeWalk.getTreeCount() == 0)
 			throw new IllegalArgumentException("nee");
 		byte[] data = reader.open(treeWalk.getObjectId(0)).getBytes();
@@ -180,59 +204,35 @@ public class GitManagementService {
 	}
 
 	public List<String> getTextPair(String name, String hash, String path) throws IOException {
-		String parent = getParentHash(name, hash);
+		String parentHash = getParentHash(name, hash);
 
 		String currentData = getText(name, hash, path);
-		String parentData = getText(name, parent, path);
+		String parentData = parentHash == null ? "" : getText(name, parentHash, path);
 
 		return Arrays.asList(currentData, parentData);
 	}
 
-	public List<String> getTextPair(String name, String hash, String parentHash, String path) throws IOException {
-		Git git = initFromRepositoryName(name);
-		Repository repository = git.getRepository();
-		try (RevWalk walk = new RevWalk(repository)) {
-			RevCommit commit = getRevCommit(walk, repository, hash);
-			RevCommit parentCommit = getRevCommit(walk, repository, parentHash);
-
-			try (DiffFormatter formatter = new DiffFormatter(System.out)) {
-				formatter.setRepository(repository);
-				List<DiffEntry> list = formatter.scan(parentCommit, commit);
-				DiffEntry entry = list.stream()//
-						.filter(e -> e.getChangeType() == ChangeType.MODIFY)//
-						.filter(e -> e.getOldPath().equals(path))//
-						.findFirst().orElse(null);
-				if (entry == null)
-					throw new IllegalArgumentException(String.format("%s is not found", path));
-				RawText oldText = readText(entry.getOldId(), repository.newObjectReader());
-				RawText newText = readText(entry.getOldId(), repository.newObjectReader());
-				return Arrays.asList();
-			}
-		}
-	}
-
 	private String getParentHash(String name, String hash)
 			throws IOException, MissingObjectException, IncorrectObjectTypeException, AmbiguousObjectException {
-		String parent;
 		Git git = initFromRepositoryName(name);
 		Repository repository = git.getRepository();
 		try (RevWalk walk = new RevWalk(repository)) {
 			RevCommit commit = getRevCommit(walk, repository, hash);
-			parent = getParentCommit(commit).getId().name();
+			RevCommit parentCommit = searchParent(repository, walk, commit);
+			// 親コミットがなければnullを返す
+			if (parentCommit == null)
+				return null;
+			return parentCommit.getId().name();
 		}
-		return parent;
-	}
-
-	private RevCommit getParentCommit(RevCommit commit) {
-		int parentCount = commit.getParentCount();
-		RevCommit parentCommit = commit.getParent(parentCount - 1);
-		return parentCommit;
 	}
 
 	private static RevCommit getRevCommit(RevWalk walk, Repository repository, String hash)
 			throws RevisionSyntaxException, MissingObjectException, IncorrectObjectTypeException,
 			AmbiguousObjectException, IOException {
-		return walk.parseCommit(repository.resolve(hash));
+		ObjectId objectId = repository.resolve(hash);
+		if (objectId == null)
+			throw new IllegalArgumentException();
+		return walk.parseCommit(objectId);
 	}
 
 }
