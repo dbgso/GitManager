@@ -8,12 +8,12 @@
     <body>
         <form th:action="clone" th:method="POST" th:object="${project}">
             <p>
-                <label for="">URL</label> <input type="text" th:field="*{url}" />
+                <label for="">URL</label> <input type="text" th:field="*{url}" placeholder="git url" />
             </p>
             <p>
-                <label for="">name</label> <input type="text" th:field="*{name}" />
+                <label for="">name</label> <input type="text" th:field="*{name}" placeholder="project name"/>
             </p>
-            <button type="submit">clone</button>
+            <button type="submit" class="btn btn-primary">clone</button>
         </form>
         <hr />
         <table>
@@ -24,14 +24,15 @@
             </thead>
             <tbody>
                 <tr th:each="proj : ${projects}">
-                    <td><a th:href="'history/' + ${proj.name} + '/'" th:text="${proj.name}"></a></td>
+                    <td><a class="btn btn-link" th:href="'history/' + ${proj.name} + '/'" th:text="${proj.name}"></a></td>
                     <td >
                         <form th:action="|./${proj.id}|" th:method="DELETE" >
-                            <button id="delete-button" type="submit">Delete</button>
+                            <button class="btn btn-default" id="delete-button" type="submit">Delete</button>
                         </form>
                     </td>
                 </tr>
             </tbody>
         </table>
+        <script th:replace="template :: scripts"></script>
     </body>
 </html>

@@ -7,11 +7,11 @@
         <link href="/css/history.css" th:href="@{/css/history.css}" rel="stylesheet"/>
     </head>
     <body>
-        <div th:object="${commit}">
+        <div th:object="${commit}" class="container">
             <label for="">parent</label>
 
             <ul>
-                <li th:each="parent : ${parents}" ><a th:href="|../${parent.sha1}/|" th:text="${parent.message}"></a></li>
+                <li th:each="parent : ${parents}" ><a class="btn btn-link" th:href="|../${parent.sha1}/|" th:text="${parent.message}"></a></li>
             </ul>
 
             <label th:text="*{sha1}"></label>
@@ -23,11 +23,11 @@
 
             <hr/>
 
-            <p><a id="download-csv" href="./download-csv">csvでダウンロード</a></p>
+            <p><a class="btn btn-default" id="download-csv" href="./download-csv">csvでダウンロード</a></p>
 
             <label for="">modified files</label>
 
-            <table border="1">
+            <table class="table table-striped table-bordered table-responsive">
                 <thead>
                     <tr class="modified-table">
                         <th>変更種別</th>
@@ -40,7 +40,7 @@
                     <tr th:each="file : *{modifiedFiles}" th:classappend="${file.changeType.toString()}">
                         <td><label for="" th:text="${file.changeType}"></label></td>
                         <td class="filepath" th:with="a = ${file.getPath()}">
-                            <a th:href="|./diff?path=${a}|" th:text="${a}"></a></td>
+                            <a class="btn btn-link" th:href="|./diff?path=${a}|" th:text="${a}"></a></td>
                         <td><label color="green" class="add-count" for="" th:text="${file.addCount}"></label></td>
                         <td><label color="red" class="delete-count" for="" th:text="${file.deleteCount}"></label></td>
                         <!-- <td><label class="patch" for="" th:text="${file.patch}"></label></td> -->
@@ -49,7 +49,7 @@
             </table>
 
             <hr/>
-
+            <script th:replace="template :: scripts"></script>
 
         </div>
     </body>

@@ -22,12 +22,12 @@
                  </tr>
         </table>
         -->
-        <select id="branches" name="${branches}">
-            <option th:each="branch : ${branches}" th:value="${branch}" th:text="${branch}"></option>
-        </select>
+        <!-- <select id="branches" name="${branches}" > -->
+        <!--     <option th:each="branch : ${branches}" th:value="${branch}" th:text="${branch}"></option> -->
+        <!-- </select> -->
 
-        <table border="2">
-            <thead>
+        <table class="table table-striped table-bordered table-responsive">
+            <thead> 
                 <tr>
                     <th>SHA1</th>
                     <th>message</th>
@@ -38,7 +38,7 @@
             <tbody>
                 <tr th:each="log : ${raw}" th:classappend="${log.getParentCount() > 1} ? mergecommit ">
                     <td class="commit-hash" th:with="hash=${log.getId().getName()}">
-                        <a th:href="|./${hash}/|" th:text="${hash}"></a>
+                        <a class="btn btn-link" th:href="|./${hash}/|" th:text="${hash}"></a>
                     </td>
                     <td class="commit-message" th:text="${log.getShortMessage()}" ></td>
                     <td class="author-name" th:text="${log.getAuthorIdent().getName()}"></td>
@@ -53,5 +53,6 @@
         <script type="text/javascript" src="/third-party/vis.js/vis.min.js" th:src="@{/third-party/vis.js/vis.min.js}"></script>
         <script type="text/javascript" src="/third-party/jquery/jquery-3.2.1.min.js" th:src="@{/third-party/jquery/jquery-3.2.1.min.js}"></script>
         <!-- <script type="text/javascript" th:inline="javascript" src="/history.js" th:src="@{/history.js}"></script> -->
+        <script th:replace="template :: scripts"></script>
     </body>
 </html>
