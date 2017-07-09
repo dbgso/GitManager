@@ -1,6 +1,7 @@
 package com.github.dbgso.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -32,9 +33,12 @@ public class HistoryController {
 	GitManagementService service;
 
 	@GetMapping()
-	public String history(@PathVariable(name = "repository") String repoName, Model model)
+	public String history(@PathVariable(name = "repository") String repoName,
+			@RequestParam(name = "limit", required = false) Integer limit, Model model)
 			throws IOException, NoHeadException, GitAPIException {
-		List<RevCommit> log = service.log(repoName);
+		if (limit == null)
+			limit = 50;
+		List<RevCommit> log = service.log(repoName, limit);
 		model.addAttribute("raw", log);
 		model.addAttribute("branches", service.getBranches(repoName));
 		return "history";

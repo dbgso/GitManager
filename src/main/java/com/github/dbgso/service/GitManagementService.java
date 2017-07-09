@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -70,6 +71,25 @@ public class GitManagementService {
 		Git git = initFromRepositoryName(name);
 		return StreamSupport.stream(git.log().call().spliterator(), false)//
 				.collect(Collectors.toList());
+	}
+
+	public List<RevCommit> log(String repoName, Integer limit) throws IOException, NoHeadException, GitAPIException {
+		Git git = initFromRepositoryName(repoName);
+		return StreamSupport
+				.stream(git.log()//
+						.setRevFilter(MaxCountRevFilter.create(limit))//
+						.call().spliterator(), false)//
+				.collect(Collectors.toList());
+	}
+
+	public List<RevCommit> log(String repoName, int start, int end) throws IOException {
+		Git git = initFromRepositoryName(repoName);
+		Map<String, Ref> refs = git.getRepository().getAllRefs();
+		org.eclipse.jgit.revwalk.filter.MaxCountRevFilter.create(end);
+		try (RevWalk walk = new RevWalk(git.getRepository())) {
+
+		}
+		throw new UnsupportedOperationException();
 	}
 
 	public List<Commit> getCommits(String name) throws NoHeadException, GitAPIException, IOException {
