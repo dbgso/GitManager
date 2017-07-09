@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.github.dbgso.model.Commit;
 import com.github.dbgso.service.GitManagementService;
 
-@RequestMapping(value = "/api2")
+@RequestMapping(value = "/api")
 @RestController
 public class RestGitController {
 
@@ -27,11 +27,17 @@ public class RestGitController {
 	GitManagementService service;
 
 	@GetMapping(value = "/{repositoryName}/message")
-	public List<Commit> search(@PathVariable(name = "repositoryName") String repositoryName,
+	public List<Commit> searchByCommitMessage(@PathVariable(name = "repositoryName") String repositoryName,
 			@RequestParam(required = true, name = "message") String message)
 			throws NoHeadException, GitAPIException, IOException {
 		service.initFromRepositoryName(repositoryName);
 		return service.searchByMessage(repositoryName, message);
+	}
+
+	@GetMapping("/{repoName}/{hash}")
+	public List<String> getModifiedFilePair(@PathVariable("repoName") String name, @PathVariable("hash") String hash,
+			@RequestParam("path") String path) throws IOException {
+		return service.getTextPair(name, hash, path);
 	}
 
 	@ExceptionHandler(value = { NoHeadException.class })
@@ -39,12 +45,6 @@ public class RestGitController {
 	@ResponseBody
 	public String internalErrorHandling() {
 		return "nohead";
-	}
-
-	@GetMapping("/{repoName}/{hash}")
-	public List<String> aiueo(@PathVariable("repoName") String name, @PathVariable("hash") String hash,
-			@RequestParam("path") String path) throws IOException {
-		return service.getTextPair(name, hash, path);
 	}
 
 	@ExceptionHandler(value = { IllegalArgumentException.class })

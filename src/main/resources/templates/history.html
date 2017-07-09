@@ -29,7 +29,10 @@
         <table border="2">
             <thead>
                 <tr>
-                    <th>メッセージ</th>
+                    <th>SHA1</th>
+                    <th>message</th>
+                    <th>author</th>
+                    <th>email</th>
                 </tr>
             </thead>
             <tbody>
@@ -41,8 +44,7 @@
                     <td class="author-name" th:text="${log.getAuthorIdent().getName()}"></td>
                     <td class="author-email" th:text="${log.getAuthorIdent().getEmailAddress()}"></td>
                     <!-- <td th:text="${#dates.format(log.getCommitTime()), 'yyyy/MM/dd hh:mm:ss')}"></td> -->
-                    <td th:text="${log.getType()}"></td>
-                    <td><input type="hidden" th:value="${log}"/></td>
+                    <!-- <td><input type="hidden" th:value="${log}"/></td> -->
                 </tr>
             </tbody>
         </table>

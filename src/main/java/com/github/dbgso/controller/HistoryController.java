@@ -45,8 +45,9 @@ public class HistoryController {
 	}
 
 	@GetMapping(value = "/{hash}")
-	public String hoge(@PathVariable(name = "repository") String repoName, @PathVariable(name = "hash") String hash,
-			Model model) throws NoHeadException, GitAPIException, IOException {
+	public String getCommitInfo(@PathVariable(name = "repository") String repoName,
+			@PathVariable(name = "hash") String hash, Model model)
+			throws NoHeadException, GitAPIException, IOException {
 		Commit commit = service.getCommit(repoName, hash);
 		List<Commit> parentCommits = new ArrayList<>(commit.getParents().size());
 		for (String parentHash : commit.getParents()) {
@@ -59,6 +60,7 @@ public class HistoryController {
 
 	@GetMapping(value = "/{hash}/download-zip")
 	public ModelAndView downloadAsZip(ModelAndView mav) {
+		// TODO implement
 		mav.addObject("filename", "test-name");
 		mav.addObject("products", "test-pro".getBytes());
 
@@ -66,7 +68,7 @@ public class HistoryController {
 	}
 
 	@RequestMapping(value = "/{hash}/download-csv", method = RequestMethod.GET)
-	public ResponseEntity<byte[]> download(@PathVariable(name = "repository") String repoName,
+	public ResponseEntity<byte[]> downloadAsCsv(@PathVariable(name = "repository") String repoName,
 			@PathVariable(name = "hash") String hash) throws IOException, NoHeadException, GitAPIException {
 		HttpHeaders header = new HttpHeaders();
 		header.add("Content-Type", "text/csv; charset=MS932");
@@ -87,8 +89,7 @@ public class HistoryController {
 	}
 
 	@GetMapping(value = "/{hash}/diff")
-	public String aiueo(@RequestParam("path") String path) {
-
+	public String showDiff(@RequestParam("path") String path) {
 		return "diff";
 	}
 

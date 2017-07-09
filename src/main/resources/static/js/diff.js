@@ -7,7 +7,7 @@ const sha1 = pathes[3];
 const p = repository + "/" + sha1;
 $.ajax({
     method:'get',
-    url: '/api2/' + p + param
+    url: '/api/' + p + param
 }).then(function(data){
     $(document).ready(function () {
         $('#compare').mergely({
