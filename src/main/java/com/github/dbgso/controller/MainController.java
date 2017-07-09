@@ -5,11 +5,9 @@ import java.io.IOException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
-import org.eclipse.jgit.gitrepo.RepoCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -56,7 +54,7 @@ public class MainController {
 		GitProject existedProject = gitProjects.findByName(project.getName());
 		if (existedProject != null)
 			return index(model, project);
-		service.clone("/tmp/git/test/" + project.getName(), project.getUrl());
+		service.clone(project.getName(), project.getUrl());
 		gitProjects.save(project);
 		return "redirect:/";
 	}

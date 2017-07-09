@@ -59,9 +59,9 @@ public class GitManagementService {
 		return Git.open(new File(path));
 	}
 
-	public Git clone(String path, String uri)
+	public Git clone(String repositoryName, String uri)
 			throws InvalidRemoteException, TransportException, GitAPIException, IOException {
-		File gitDir = new File(path);
+		File gitDir = getRepositoryPath(repositoryName);
 		if (gitDir.exists())
 			return init(gitDir.getAbsolutePath());
 		return Git.cloneRepository().setURI(uri).setDirectory(gitDir).call();
