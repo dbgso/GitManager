@@ -1,18 +1,16 @@
 package com.github.dbgso.model;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import static org.mockito.Matchers.anyCollection;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevTree;
 
 import lombok.Data;
 
@@ -23,9 +21,9 @@ public class Commit {
 	private String author;
 	private Date date;
 	private String sha1;
-	private String[] parents;
+	private List<String> parents;
 	private String branch;
-	private ModifiedFile[] modifiedFiles;
+	private List<ModifiedFile> modifiedFiles;
 
 	public static Commit valueOf(RevCommit revCommit) {
 		Commit commit = new Commit();
@@ -36,11 +34,9 @@ public class Commit {
 		commit.sha1 = revCommit.getId().getName();
 
 		RevCommit[] parents = revCommit.getParents();
-		commit.parents = new String[parents.length];
-		for (int i = 0; i < parents.length; i++) {
-			RevCommit parent = parents[i];
-			commit.parents[i] = parent.getId().getName();
-		}
+		commit.parents = Arrays.stream(parents)//
+				.map(revC -> revC.getId().getName())//
+				.collect(Collectors.toList());
 
 		return commit;
 	}

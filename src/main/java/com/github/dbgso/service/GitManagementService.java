@@ -113,8 +113,8 @@ public class GitManagementService {
 				diffFormatter.setRepository(git.getRepository());
 
 				RevTree toTree = revCommit.getTree();
-				String[] parents = commit.getParents();
-				String string = parents[parents.length - 1];
+				List<String> parents = commit.getParents();
+				String string = parents.get(parents.size() - 1);
 
 				RevTree parentTree = walk.parseCommit(git.getRepository().resolve(string)).getTree();
 
@@ -146,7 +146,7 @@ public class GitManagementService {
 						})//
 						.collect(Collectors.toList());
 
-				commit.setModifiedFiles(modifiedFiles.toArray(new ModifiedFile[] {}));
+				commit.setModifiedFiles(modifiedFiles);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -173,7 +173,7 @@ public class GitManagementService {
 	private String getFileString(String path, RevCommit revCommit, ObjectReader reader) throws MissingObjectException,
 			IncorrectObjectTypeException, CorruptObjectException, IOException, UnsupportedEncodingException {
 		TreeWalk treeWalk = TreeWalk.forPath(reader, path, revCommit.getTree());
-		if(treeWalk.getTreeCount() == 0)
+		if (treeWalk.getTreeCount() == 0)
 			throw new IllegalArgumentException("nee");
 		byte[] data = reader.open(treeWalk.getObjectId(0)).getBytes();
 		return new String(data, "utf-8");

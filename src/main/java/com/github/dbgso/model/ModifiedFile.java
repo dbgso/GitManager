@@ -23,4 +23,17 @@ public class ModifiedFile {
 		return modifiedFile;
 	}
 
+	public String getPath() {
+		switch (changeType) {
+		case ADD:
+		case MODIFY:
+		case COPY:
+		case RENAME:
+			return newPath;
+		case DELETE:
+			return oldPath;
+		default:
+			return null;
+		}
+	}
 }

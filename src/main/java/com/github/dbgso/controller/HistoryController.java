@@ -8,11 +8,17 @@ import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.github.dbgso.model.Commit;
 import com.github.dbgso.service.GitManagementService;
@@ -42,10 +48,38 @@ public class HistoryController {
 		return "commit";
 	}
 
+	@GetMapping(value = "/{hash}/download-zip")
+	public ModelAndView downloadAsZip(ModelAndView mav) {
+		mav.addObject("filename", "test-name");
+		mav.addObject("products", "test-pro".getBytes());
+
+		return mav;
+	}
+
+	@RequestMapping(value = "/{hash}/download-csv", method = RequestMethod.GET)
+	public ResponseEntity<byte[]> download(@PathVariable(name = "repository") String repoName,
+			@PathVariable(name = "hash") String hash) throws IOException, NoHeadException, GitAPIException {
+		HttpHeaders header = new HttpHeaders();
+		header.add("Content-Type", "text/csv; charset=MS932");
+		header.setContentDispositionFormData("filename", "hoge.csv");
+
+		Commit commit = service.getCommit(repoName, hash);
+		StringBuilder sb = new StringBuilder();
+		sb.append(String.format("author, \"%s\"\n", commit.getAuthor()));
+		sb.append(String.format("commit message, \"%s\"\n", commit.getMessage()));
+		sb.append(String.format("date, \"%s\"\n", commit.getDate().toString()));
+		commit.getModifiedFiles().stream()//
+				.forEach(file -> {
+					sb.append(String.format("\"%s\", \"%s\"\n", file.getChangeType().toString(), file.getPath()));
+
+				});
+
+		return new ResponseEntity<>(sb.toString().getBytes("UTF-8"), header, HttpStatus.OK);
+	}
+
 	@GetMapping(value = "/{hash}/diff")
-	public String aiueo() {
-		
-		
+	public String aiueo(@RequestParam("path") String path) {
+
 		return "diff";
 	}
 
