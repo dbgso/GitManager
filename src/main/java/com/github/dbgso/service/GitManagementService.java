@@ -48,6 +48,7 @@ import org.springframework.stereotype.Service;
 import com.github.dbgso.config.GitConfig;
 import com.github.dbgso.model.Commit;
 import com.github.dbgso.model.ModifiedFile;
+import com.github.dbgso.util.StringUtils;
 
 @Service
 public class GitManagementService {
@@ -222,7 +223,7 @@ public class GitManagementService {
 		if (treeWalk.getTreeCount() == 0)
 			throw new IllegalArgumentException("nee");
 		byte[] data = reader.open(treeWalk.getObjectId(0)).getBytes();
-		return new String(data, "utf-8");
+		return StringUtils.encode(data);
 	}
 
 	public List<String> getTextPair(String name, String hash, String path) throws IOException {
