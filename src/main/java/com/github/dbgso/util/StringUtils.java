@@ -1,22 +1,39 @@
 package com.github.dbgso.util;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+
+import org.apache.tika.detect.EncodingDetector;
+import org.apache.tika.exception.TikaException;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.parser.Parser;
+import org.apache.tika.parser.txt.UniversalEncodingDetector;
+import org.apache.tika.sax.BodyContentHandler;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+
+import com.sun.xml.internal.messaging.saaj.util.ByteInputStream;
 
 public class StringUtils {
 
-	public static final String[] ENCODING = new String[] { "UTF-8", "Shift_JIS", "EUC_JP", "UTF-16" };
-
 	public static String encode(byte[] data) {
-		for (String enc : StringUtils.ENCODING) {
-			try {
-				String encode = new String(data, enc);
-				byte[] bytes = encode.getBytes(enc);
-				if (Arrays.equals(data, bytes))
-					return encode;
-			} catch (UnsupportedEncodingException e) {
-			}
+
+		Parser parser = new AutoDetectParser();
+
+		ContentHandler handler = new BodyContentHandler();
+		Metadata metadata = new Metadata();
+		try {
+			parser.parse(new ByteInputStream(data, data.length), handler, metadata, new ParseContext());
+
+			System.out.println(metadata);
+			return handler.toString();
+		} catch (IOException | SAXException | TikaException e) {
+			e.printStackTrace();
 		}
+
 		return new String(data);
 	}
 
