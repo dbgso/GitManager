@@ -23,7 +23,7 @@ public class StringUtils {
 
 		Parser parser = new AutoDetectParser();
 
-		ContentHandler handler = new BodyContentHandler();
+		ContentHandler handler = new BodyContentHandler(-1);
 		Metadata metadata = new Metadata();
 		try {
 			parser.parse(new ByteInputStream(data, data.length), handler, metadata, new ParseContext());
