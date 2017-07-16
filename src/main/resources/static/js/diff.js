@@ -5,6 +5,7 @@ const repository = pathes[2];
 const sha1 = pathes[3];
 
 const p = repository + "/" + sha1;
+
 $.ajax({
     method:'get',
     url: '/api/' + p + param
@@ -22,11 +23,41 @@ $.ajax({
             rhs: function(setValue) {
                 setValue(data[0]);
             },
-            editor_height: '500px',
-            editor_width: '48%',
+            width: 'auto',
+            height: 'auto',
             ignorews: true
-
-
         });
+
+        $(window).on("resize", function (){
+            $("#compare").css("height", get_current_height() + "px");
+        });
+
+        bind_operations();
+
+        $("#compare").css("height", get_current_height() + "px");
+        $('#compare').mergely('resize');
     });
 });
+
+
+function bind_operations (){
+    document.querySelector('#next-diff').onclick = function() {
+        $('#compare').mergely('scrollToDiff', 'next');
+    };
+    document.querySelector('#prev-diff').onclick = function() {
+        $('#compare').mergely('scrollToDiff', 'prev');
+    };
+    document.querySelector('#compare').onkeydown = function (e)　{
+        const key = e.key;
+        if (key === 'ArrowDown')
+            $('#compare').mergely('scrollToDiff', 'next');
+        else if (key === 'ArrowUp')
+            $('#compare').mergely('scrollToDiff', 'prev');
+    };
+}
+
+
+function get_current_height () {
+    const hsize = $(window).height() * 0.9;
+    return hsize;
+}

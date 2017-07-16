@@ -1,0 +1,12 @@
+#compare {
+	width: 100%;	
+}
+
+ul {
+	display: block;
+	list-style: disc;
+	font-size: 0;
+}
+li {
+	display: inline-block;
+}
