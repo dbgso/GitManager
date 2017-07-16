@@ -22,11 +22,22 @@ $.ajax({
             rhs: function(setValue) {
                 setValue(data[0]);
             },
-            editor_height: '500px',
-            editor_width: '48%',
+            width: 'auto',
+            height: '901',
             ignorews: true
-
-
         });
+        document.querySelector('#next-diff').onclick = function() {
+        	$('#compare').mergely('scrollToDiff', 'next');
+        }
+        document.querySelector('#prev-diff').onclick = function() {
+        	$('#compare').mergely('scrollToDiff', 'prev');
+        }
+        document.querySelector('#compare').onkeydown = function (e)　{
+        	const key = e.key;
+        	if (key === 'ArrowDown')
+        		$('#compare').mergely('scrollToDiff', 'next');
+        	else if (key === 'ArrowUp')
+        		$('#compare').mergely('scrollToDiff', 'prev');
+        }
     });
 });

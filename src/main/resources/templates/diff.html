@@ -6,9 +6,15 @@
         <title>Main Page</title>
         <link type="text/css" rel="stylesheet" href="/third-party/Mergely/codemirror.css" th:href="@{/third-party/Mergely/codemirror.css}" />
         <link type="text/css" rel="stylesheet" href="/third-party/Mergely/mergely.css" th:href="@{/third-party/Mergely/mergely.css}" />
+        <link type="text/css" rel="stylesheet" href="/css/diff.css" th:href="@{/css/diff.css}" />
     </head>
     <body>
-        <div id="compare" style:width="100%">
+    <ul id="toolbar">
+    <li id="prev-diff" class="menu-item" title="previous diff"><button>&lt;</button></li>
+    <li id="next-diff" class="menu-item" title="next diff"><button>&gt;</button></li>
+    </ul>
+    
+        <div id="compare">
         </div>
 
         <script type="text/javascript" src="/third-party/jquery/jquery-3.2.1.min.js" th:src="@{/third-party/jquery/jquery-3.2.1.min.js}"></script>
